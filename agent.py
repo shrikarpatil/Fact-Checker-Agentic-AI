@@ -4,10 +4,11 @@ from langchain_ollama import OllamaLLM
 from langgraph.graph import StateGraph,START,END
 from tavily import TavilyClient
 from dotenv import load_dotenv
+from getLLM import getLLM
 
 load_dotenv()
 apiKey = os.getenv("TAVILY_API_KEY")
-llm = OllamaLLM(model="llama3")
+llm = getLLM()
 tavilyClient = TavilyClient(api_key=apiKey)
 
 class State (TypedDict):
@@ -62,7 +63,7 @@ def verifyClaim(state : dict) -> dict:
     
     Now, please analyze the claim and the search results to provide your conclusion.
     """
-    response = llm.invoke(prompt)
+    response = llm.invoke(prompt)    
     state["verdict"] = response    
     return state
 
