@@ -5,11 +5,13 @@ from langgraph.graph import StateGraph,START,END
 from tavily import TavilyClient
 from dotenv import load_dotenv
 from getLLM import getLLM
+from socketConfig import sio
 
 load_dotenv()
 apiKey = os.getenv("TAVILY_API_KEY")
 llm = getLLM()
 tavilyClient = TavilyClient(api_key=apiKey)
+
 
 class State (TypedDict):
     claim : str
@@ -18,17 +20,20 @@ class State (TypedDict):
 
 graph = StateGraph(State)
 
-def webSearch(state : dict) -> dict:    
+async def webSearch(state : dict) -> dict:
+    await sio.emit("status", {"message": "🔍 Performing web search..."})
     claim = state["claim"]
     results = tavilyClient.search(query=claim, max_results=5, search_depth="advanced")
     formatted_results = "\n\n".join(
         [f"Title: {r['title']}\nURL: {r['url']}\nSnippet: {r['content']}" for r in results["results"]]
     )
-    state["searchResults"] = formatted_results    
+    state["searchResults"] = formatted_results
+    await sio.emit("status", {"message": "✅ Web search completed"})
     return state
 
 
-def verifyClaim(state : dict) -> dict:   
+async def verifyClaim(state : dict) -> dict:   
+    await sio.emit("status", {"message": "🤖 Verifying claim..."})
     claim = state["claim"]
     searchResults = state["searchResults"]
     prompt = f"""
@@ -63,8 +68,9 @@ def verifyClaim(state : dict) -> dict:
     
     Now, please analyze the claim and the search results to provide your conclusion.
     """
-    response = llm.invoke(prompt)    
-    state["verdict"] = response    
+    response = await llm.ainvoke(prompt)    
+    state["verdict"] = response   
+    await sio.emit("status", {"message": "🎉 Verification completed"})
     return state
 
 graph.add_node("webSearch", webSearch)
