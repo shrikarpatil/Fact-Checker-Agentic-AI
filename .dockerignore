@@ -1,0 +1,28 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+*.env
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git files
+.git
+.gitignore
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Docker build cache (optional)
+*.dockerignore
