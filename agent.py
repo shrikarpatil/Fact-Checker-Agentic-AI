@@ -68,7 +68,7 @@ async def verifyClaim(state : dict) -> dict:
     
     Now, please analyze the claim and the search results to provide your conclusion.
     """
-    response = await llm.ainvoke(prompt)    
+    response =  llm.invoke(prompt)    
     state["verdict"] = response   
     await sio.emit("status", {"message": "🎉 Verification completed"})
     return state
