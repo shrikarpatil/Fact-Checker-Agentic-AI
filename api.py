@@ -13,9 +13,10 @@ class ClaimRequest(BaseModel):
 @app.post("/fact-check")
 async def fact_check(request:ClaimRequest):   
     initial_state = {"claim": request.claim}
-    result =   await agent.ainvoke(initial_state)
+    result =   await agent.ainvoke(initial_state)   
+    verdict = result.get("verdict") 
     return {
         "claim": request.claim,
-        "verdict": result["verdict"],
+        "verdict": verdict.content,
         "searchResults": result.get("searchResults", "N/A")
     }
